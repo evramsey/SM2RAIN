@@ -7,29 +7,29 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import os, datetime
 
-# Testing files
-# temp = rdr.getAvgTemp("air_temp_avg_2003_08_GLDAS.csv")
-# precip = rdr.getPrecip("totalprecipitation_2003_08_GLDAS.csv")
-# sm = rdr.getTopSoilMoisture("top_soil_moisture_agg_2003_08_GLDAS.csv")
-# datelist = pd.date_range(pd.datetime(2003, 8, 1), pd.datetime(2003, 8, 31))
-
 today = datetime.datetime.today().strftime('%Y-%m-%d')
 
+
 #full data set
-# dailydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2011, 12, 31))
-# monthlydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2011, 12, 31), freq='MS')
-# yearlist = [2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
-# temp = rdr.getAvgTemp("Air_Temp_Composite_GLDAS.csv") - 273.15   # GLDAS temperature in Kelvin, converting to Celsius
-# precip = rdr.getPrecip("Total_Precip_Composite_GLDAS.csv")   # GLDAS precip in kg/day, which is equivalent to mm/day
-# sm = rdr.getTopSoilMoisture("Top_Soil_Moisture_Composite_GLDAS.csv")   #GLDAS soil moisture in m^3/m^3
+dailydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2011, 12, 31))
+monthlydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2011, 12, 31), freq='MS')
+yearlist = [2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
+temp = rdr.getAvgTemp("Air_Temp_Composite_GLDAS.csv") - 273.15   # GLDAS temperature in Kelvin, converting to Celsius
+precip = rdr.getPrecip("Total_Precip_Composite_GLDAS.csv")   # GLDAS precip in kg/day, which is equivalent to mm/day
+sm = rdr.getTopSoilMoisture("Top_Soil_Moisture_Composite_GLDAS.csv")   #GLDAS soil moisture in m^3/m^3
+
+# validation data set
+# temp = rdr.getAvgTemp("Air_Temp_Composite_GLDAS_validation.csv") - 273.15   # GLDAS temperature in Kelvin, converting to Celsius
+# precip = rdr.getPrecip("Total_Precip_Composite_GLDAS_validation.csv")   # GLDAS precip in kg/day, which is equivalent to mm/day
+# sm = rdr.getTopSoilMoisture("Top_Soil_Moisture_Composite_GLDAS_validation.csv")   #GLDAS soil moisture in m^3/m^3
 
 #training data set
-dailydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2009, 12, 31))
-monthlydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2009, 12, 31), freq='MS')
-yearlist = [2003, 2004, 2005, 2006, 2007, 2008, 2009]
-temp = rdr.getAvgTemp("Air_Temp_Composite_GLDAS_training.csv") - 273.15   # GLDAS temperature in Kelvin, converting to Celsius
-precip = rdr.getPrecip("Total_Precip_Composite_GLDAS_training.csv")   # GLDAS precip in kg/day, which is equivalent to mm/day
-sm = rdr.getTopSoilMoisture("Top_Soil_Moisture_Composite_GLDAS_training.csv")   #GLDAS soil moisture in m^3/m^3
+# dailydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2009, 12, 31))
+# monthlydatelist = pd.date_range(pd.datetime(2003, 1, 1), pd.datetime(2009, 12, 31), freq='MS')
+# yearlist = [2003, 2004, 2005, 2006, 2007, 2008, 2009]
+# temp = rdr.getAvgTemp("Air_Temp_Composite_GLDAS_training.csv") - 273.15   # GLDAS temperature in Kelvin, converting to Celsius
+# precip = rdr.getPrecip("Total_Precip_Composite_GLDAS_training.csv")   # GLDAS precip in kg/day, which is equivalent to mm/day
+# sm = rdr.getTopSoilMoisture("Top_Soil_Moisture_Composite_GLDAS_training.csv")   #GLDAS soil moisture in m^3/m^3
 
 data = pd.concat([temp, precip, sm, sm.diff()], keys=['temp', 'precip', 'sm', 'sm_delta'], names=['source'])
 data.reset_index(inplace=True)
@@ -38,6 +38,7 @@ data.dropna()
 data.sort_index(inplace=True)
 numCells = data.shape[1]
 print(data)
+print(len(data))
 
 rmsList, predictedvalsList, actualvalsList, paramsList = [], [], [], []
 
@@ -182,6 +183,7 @@ def plotMonthlyCellPrecip(params, cell_num):
     obs_df = pd.DataFrame(p_obs, index=dailydatelist)
     obs_df = obs_df.groupby(pd.TimeGrouper(freq='M')).sum()
     calc_df.loc[calc_df[0] < 0, 0] = 0
+    plt.figure(num=0, figsize=(10, 4))
     plt.plot(monthlydatelist, calc_df, "#4DCAF4", monthlydatelist, obs_df, "#FFCE9A")
     model_line = mlines.Line2D([], [], color='#4DCAF4', label="Modeled Precipitation")
     obs_line = mlines.Line2D([],[], color='#FFCE9A', label="Observed Precipitation")
@@ -206,15 +208,14 @@ def plotAverageObservedBasinPrecip(temp_res):
     overallAverage = np.mean(avgPrecip)
     print(overallAverage)
     print(avgPrecip)
-    #
-    # if temp_res == "month":
-    #     plt.plot(monthlydatelist, avgPrecip, color="#FBB652")
-    # else:
-    #     plt.plot(yearlist, avgPrecip, color="#FBB652")
-    # plt.axhline(overallAverage)
-    # plt.xlabel("Time")
-    # plt.ylabel("Precipitation (mm/{0})".format(temp_res))
-    # plt.show()
+    if temp_res == "month":
+        plt.plot(monthlydatelist, avgPrecip, color="#FBB652")
+    else:
+        plt.plot(yearlist, avgPrecip, color="#FBB652")
+    plt.axhline(overallAverage)
+    plt.xlabel("Time")
+    plt.ylabel("Precipitation (mm/{0})".format(temp_res))
+    plt.show()
     return avgPrecip
 
 def saveVals(folderName):
@@ -241,17 +242,10 @@ def saveSolutions(res, size, tottime):
         text_file.write(s)
     print(s)
 
-
-
-# these puppies are the best performers for wrong cell set
-nm_basin_params = [2.32461119e+02, 1.46352926e+02, 3.16673194e+00, 7.22414553e-02]
-nm_ga_params = [2.32461114e+02, 1.46352973e+02, 3.16673071e+00, 7.22414408e-02]
-
-
 # minimizeGA()
-ga_params = [2.33274822e+02, 8.14493074e+02, 8.58872370e-01, 8.67620061e-02]
-minimizeNM(ga_params)
+ga_params = [2.33400124e+02, 3.48694179e+02, 1.31029119e+00, 8.48281229e-02]
+# minimizeNM(ga_params)
 
-np_params = [2.33312910e+02, 6.27836656e+02, 9.74982222e-01, 7.33952104e-02]
-#plotMonthlyCellPrecip(params_training, 3)
+np_params = [2.33438634e+02, 3.02463383e+02, 1.45610573e+00, 7.59842902e-02]
+plotMonthlyCellPrecip(np_params, 127)
 #plotAverageObservedBasinPrecip("month")

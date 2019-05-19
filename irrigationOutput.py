@@ -29,8 +29,6 @@ print(data)
 numCells = data.shape[1]
 
 
-
-#TODO: check calculations with test file
 def irrigation_calc(datavals, paramsList):
     t, sm, smdelta, p = datavals
     z, ks, lam, kc = paramsList
@@ -39,7 +37,7 @@ def irrigation_calc(datavals, paramsList):
     return irr
 
 def irrigation(params, cell_num):
-    """Iterates through all dates and calculates irrigation using parameter values for a given value; returns irrigation values in
+    """Iterates through all dates and calculates irrigation using parameter values for a given cell; returns irrigation values in
     a 1-D array"""
     irrigation_array = []
     for date, sub_df in data.groupby(level=0):
@@ -99,8 +97,6 @@ def plotFilteredCellIrrigation(params, cell_num):
     plt.ylabel("Irrigation (mm/month)")
     plt.show()
 
-#plotFilteredCellIrrigation(paramsList, 14)
-
 cellNum = 0
 listicle = []
 while cellNum < numCells:
@@ -115,8 +111,8 @@ print(irrig_df.mean(axis=0))
 mean_irrig = irrig_df.mean(axis=0)
 avgPrecip = alg.plotAverageObservedBasinPrecip("month")
 plt.plot()
-plt.plot(monthlydatelist, mean_irrig, "#01ACD2", monthlydatelist, avgPrecip, "#FBB652")
-model_line = mlines.Line2D([], [], color='#01ACD2', label="Modeled Irrigation")
+plt.plot(monthlydatelist, mean_irrig, "#4FD093", monthlydatelist, avgPrecip, "#FBB652")
+model_line = mlines.Line2D([], [], color='#4FD093', label="Modeled Irrigation")
 obs_line = mlines.Line2D([], [], color='#FBB652', label="Observed Precipitation")
 plt.legend(handles=[model_line, obs_line])
 plt.xlabel("Time")
