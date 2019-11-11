@@ -63,7 +63,7 @@ def find_optimal_parameters(data, trng_start_date, trng_end_date, vld_start_date
             global_results = opt.differential_evolution(get_trng_rms, bounds=bnds, tol=tol)
         elif ("basin" in glob_opt.lower()) and ("hopping" in glob_opt.lower()):
             args = {'bounds': bnds, 'tol': tol}
-            global_results = opt.basinhopping(get_trng_rms, initial_param_guess, niter=100, minimizer_kwargs=args,                                             stepsize=bas_size)
+            global_results = opt.basinhopping(get_trng_rms, initial_param_guess, niter=100, minimizer_kwargs=args, stepsize=bas_size)
         else:
             print('Global optimizer name not recognized. Please check spelling and try again.')
             sys.exit()
@@ -93,8 +93,11 @@ def find_optimal_parameters(data, trng_start_date, trng_end_date, vld_start_date
         dailydatelist = pd.date_range(start, end).to_pydatetime()
         rms_df = pd.DataFrame(rms_list)
         params_df = pd.DataFrame(params_list)
-        obs_precip_df = pd.DataFrame(obs_array, index=dailydatelist, columns=data.columns.values)
-        calc_precip_df = pd.DataFrame(calc_array, index=dailydatelist, columns=data.columns.values)
+        obs_precip_df = pd.DataFrame(obs_array, columns=dailydatelist, index=data.columns.values)
+        calc_precip_df = pd.DataFrame(calc_array, columns=dailydatelist, index=data.columns.values)
+        obs_precip_df = obs_precip_df.transpose()
+        calc_precip_df = calc_precip_df.transpose()
+
         rms_df.to_csv('{0}/{1}_rms_vals.csv'.format(irrig_fldr, optimizer), header=None)
         obs_precip_df.to_csv(obs_file_name,
                              header=data.columns.values)
@@ -131,17 +134,10 @@ def find_optimal_parameters(data, trng_start_date, trng_end_date, vld_start_date
         with open("validation_rms", 'w') as text_file:
             text_file.write("Validation data root mean square error:  " + str(rms))
 
-    # results = run_selected_optimizers(optimizer1, optimizer2)
-    # params = results.x
-    params = [30.23291347240082, 15.342681210842358, 4.997641994001076, 3.0607181991905216e-05]
-    params = [30.204627556737574, 37.981574949380935, 1.4340021218801704, 0.009608286115623779]
-
-    p_calc_array, p_obs_array = prcp.get_opt_precip_arrays(data, params, trng_start_date, vld_end_date)
-    p_calc_array = np.array(p_calc_array)
-    p_obs_array = np.array(p_obs_array)
-    p_calc_array = p_calc_array.transpose()
-    p_obs_array = p_obs_array.transpose()
-    save_vals(optimizer, p_calc_array, p_obs_array, trng_start_date, vld_end_date, mod_file_name, obs_file_name)
+    results = run_selected_optimizers(optimizer1, optimizer2)
+    params = results.x
+    # params = [30.23291347240082, 15.342681210842358, 4.997641994001076, 3.0607181991905216e-05]
+    # params = [30.204627556737574, 37.981574949380935, 1.4340021218801704, 0.009608286115623779]
 
     monthly_irrig_df = irrig.get_monthly_irrig_df(data, params, trng_first_date, vld_last_date)
     monthly_irrig_df.to_csv(irrig_csv)
@@ -150,8 +146,6 @@ def find_optimal_parameters(data, trng_start_date, trng_end_date, vld_start_date
 
     daily_irrig_df.to_csv(irrig_fldr + "/" + optimizer1 + "_daily_irrig_outputs.csv")
     return params
-    # return results.x
-
 
 
 if __name__ == '__main__':
@@ -164,9 +158,9 @@ if __name__ == '__main__':
     else:
         optimizer = opt_1 + '_' + opt_2
     irrig_id_out_folder = irrig_out_folder + "/" + out_id
-    obs_precip_name = irrig_id_out_folder + '/observed_precip.csv'
-    mod_precip_name = irrig_id_out_folder + '/' + optimizer + '_modeled_precip.csv'
-    irrig_out_csv = irrig_id_out_folder + '/' + optimizer + "_monthly_irrigation_outputs.csv"
+    obs_precip_name = irrig_id_out_folder + '/observed_precip_1982.csv'
+    mod_precip_name = irrig_id_out_folder + '/' + optimizer + '_modeled_precip_1982.csv'
+    irrig_out_csv = irrig_id_out_folder + '/' + optimizer + "_monthly_irrigation_outputs_1982.csv"
     trng_first_date = pd.to_datetime(trng_date_1)
     trng_last_date = pd.to_datetime(trng_date_2)
     vld_first_date = pd.to_datetime(vld_date_1)
@@ -175,9 +169,9 @@ if __name__ == '__main__':
         print("Irrigation optimization already completed; creating visualization files")
         # skip all these steps and use visualization stuff only
     else:
-        temp = rdr.get_gldas_df('air_temp_avg', gldas_file_path) - 273.15  # GLDAS temperature in Kelvin, converting to Celsius
-        precip = rdr.get_gldas_df('total_precipitation', gldas_file_path)  # GLDAS precip in kg/m^2*day, which is equivalent to mm/day
-        sm = rdr.get_gldas_df('top_soil_moisture', gldas_file_path)/100  # GLDAS soil moisture in kg/m^2, to m^3/m^3 by dividing by layer thickness (100 mm)
+        temp = rdr.get_gldas_df('air_temp_avg_1982', gldas_file_path) - 273.15  # GLDAS temperature in Kelvin, converting to Celsius
+        precip = rdr.get_gldas_df('total_precipitation_1982', gldas_file_path)  # GLDAS precip in kg/m^2*day, which is equivalent to mm/day
+        sm = rdr.get_gldas_df('top_soil_moisture_1982', gldas_file_path)/100  # GLDAS soil moisture in kg/m^2, to m^3/m^3 by dividing by layer thickness (100 mm)
         data = pd.concat([temp, precip, sm, sm.diff()], keys=['temp', 'precip', 'sm', 'sm_delta'], names=['source', 'date'])
         if data.shape[1] != num_cols * num_rows:
             print("Specified latitude and longitude range do not correspond to data. Please check files.")
