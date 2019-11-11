@@ -1,0 +1,46 @@
+GLDAS Data Input File Path:	/Users/lizramsey/PycharmProjects/Syria/raw_inputs/GLDAS_data/Khabour
+GLDAS Output File Path:	/Users/lizramsey/PycharmProjects/Syria/GLDAS_value_csvs/Khabour1982
+File flag (for identifying new output):	1982RunNov11
+Latitude Range: 	36.0	38.0
+Longitude Range:	39.0	43.0
+Training Data Date Range:	1982-12-16	2008-12-16
+Validation Data Date Range:	2008-12-17	2011-12-16
+Global Optimizer (Required):	Genetic Algorithm
+If using basin hopping, size:	1000
+Local Optimizer (Optional):	Nelder Mead
+Irrigation Output File Path:	/Users/lizramsey/PycharmProjects/Syria/irrigation_output/Khabour
+
+IRRIGATION/PRECIPITATION VISUALIZATION OPTIONS
+Visualization Output File Path:				/Users/lizramsey/PycharmProjects/Syria/irrigation_output/Khabour/visualizations
+Temporal error graph (training only):					False
+Temporal error graph (validation only):					False
+Temporal error graph (training & validation):				True
+Geospatial error (training only):					True
+Geospatial error (validation only):					True
+Geospatial error (training & validation):				False
+Basin-wide mean irrigation (training & validation):			True
+Basin-wide mean irrigation vs. precipitation(training & validation):	True
+Basin-wide mean precipitation (training & validation):			True
+Basin-wide mean observed vs. modeled precipitation:			True
+Modeled vs. observed precipitation at specific cell:			False
+  If True, coordinates or tab-separated list of coordinates:		(0,1)	(2,3)
+Generate irrigation vs. precipitation at specific cell:			False
+  If True, coordinates or tab-separated list of coordinates:		(0,0)	(2,3)
+
+GRACE Data Input File Path:	 		/Users/lizramsey/PycharmProjects/Syria/raw_inputs/GRACE_data
+GRACE-GLDAS Processed Data File Path:		/Users/lizramsey/PycharmProjects/Syria/GLDAS_GRACE_Outputs
+LIS Routing Input File Path:			/Users/lizramsey/PycharmProjects/Syria/raw_inputs/Syria_LIS_output/ROUTING
+LIS Surface Model Input File Path:		/Users/lizramsey/PycharmProjects/Syria/raw_inputs/Syria_LIS_output/SURFACEMODEL
+LIS Streamflow Output File Path:		/Users/lizramsey/PycharmProjects/Syria/LIS_value_csvs/Streamflow/Streamflow_agg.csv
+LIS Depth to Water Table Output File Path:	/Users/lizramsey/PycharmProjects/Syria/LIS_value_csvs/Depth_to_water/DepthToWaterTable_disagg.csv
+Groundwater Output File Path:			/Users/lizramsey/PycharmProjects/Syria/Groundwater_Model/Outputs
+Confined?			True
+North Boundary Condition:	No Flow
+South Boundary Condition:	4.49
+West Boundary Condition:	2.65
+East Boundary Condition:	4.52
+Transmissivity:			1.76
+Storativity:			0.050
+Specific Yield:			0.14
+Grid cell area (km2):		9874
+
